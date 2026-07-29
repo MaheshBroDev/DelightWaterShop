@@ -15,6 +15,22 @@ datasource db {
 enum UserRole {
   CUSTOMER
   ADMIN
+  SUPER_ADMIN
+  PRODUCT_MANAGER
+  CONTENT_EDITOR
+  ORDER_MANAGER
+  MARKETING_MANAGER
+  SUPPORT_AGENT
+  VIEWER
+}
+
+// Product status for workflow
+enum ProductStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
 }
 
 // Product types
@@ -60,6 +76,12 @@ model User {
   image         String?
   role          UserRole  @default(CUSTOMER)
   passwordHash  String?
+  
+  // Admin-specific fields
+  adminTitle    String?
+  adminPhone    String?
+  lastLoginAt   DateTime?
+  isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -71,6 +93,9 @@ model User {
   cart          Cart?
   reviews       Review[]
   wishlist      Wishlist[]
+  createdProducts Product[] @relation("ProductCreator")
+  updatedProducts Product[] @relation("ProductUpdater")
+  approvedProducts Product[] @relation("ProductApprover")
 
   @@map("users")
 }
@@ -180,37 +205,54 @@ model Brand {
 }
 
 model Product {
-  id          String      @id @default(cuid())
+  id          String        @id @default(cuid())
   type        ProductType
   name        String
-  slug        String      @unique
-  description String?     @db.Text
-  sku         String      @unique
+  slug        String        @unique
+  description String?       @db.Text
+  sku         String        @unique
   basePrice   Float
   categoryId  String
   brandId     String?
-  isActive    Boolean     @default(true)
-  isFeatured  Boolean     @default(false)
+  status      ProductStatus @default(DRAFT)
+  isActive    Boolean       @default(false)
+  isFeatured  Boolean       @default(false)
   weight      Float?
-  dimensions  Json?       // {length, width, height}
-  images      String[]    // Array of image URLs
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  dimensions  Json?         // {length, width, height}
+  images      String[]      // Array of image URLs
+  
+  // SEO fields
+  seoTitle       String?
+  seoDescription String?    @db.Text
+  seoKeywords    String[]
+  ogImage        String?
+  canonicalUrl   String?
+  
+  // Workflow tracking
+  createdById    String?
+  updatedById    String?
+  approvedById   String?
+  approvedAt     DateTime?
+  publishedAt    DateTime?
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  category    Category        @relation(fields: [categoryId], references: [id])
-  brand       Brand?          @relation(fields: [brandId], references: [id])
+  category    Category           @relation(fields: [categoryId], references: [id])
+  brand       Brand?             @relation(fields: [brandId], references: [id])
   variants    ProductVariant[]
   options     ProductOption[]
   compositeItems CompositeItem[] @relation("CompositeParent")
-  componentOf CompositeItem[] @relation("ComponentChild")
+  componentOf CompositeItem[]    @relation("ComponentChild")
   bulkTiers   BulkTier[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
   reviews     Review[]
   wishlist    Wishlist[]
-  relatedFrom ProductRelation[] @relation("RelatedFrom")
-  relatedTo   ProductRelation[] @relation("RelatedTo")
+  relatedFrom ProductRelation[]  @relation("RelatedFrom")
+  relatedTo   ProductRelation[]  @relation("RelatedTo")
   flashSaleItems FlashSaleItem[]
+  changes     ProductChange[]
 
   @@map("products")
 }
@@ -284,6 +326,27 @@ model ProductRelation {
 
   @@unique([productId, relatedId])
   @@map("product_relations")
+}
+
+// ============= PRODUCT CHANGE LOG =============
+
+model ProductChange {
+  id         String   @id @default(cuid())
+  productId  String
+  userId     String
+  userName   String
+  action     String   // created, updated, status_changed, approved, rejected
+  field      String?  // Which field was changed (optional)
+  oldValue   Json?    // Previous value
+  newValue   Json?    // New value
+  comment    String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, createdAt])
+  @@index([userId])
+  @@map("product_changes")
 }
 
 // ============= CART =============

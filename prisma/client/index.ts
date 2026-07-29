@@ -13,6 +13,14 @@ export enum ProductType {
   BULK = "BULK",
 }
 
+export enum ProductStatus {
+  DRAFT = "DRAFT",
+  PENDING_REVIEW = "PENDING_REVIEW",
+  PUBLISHED = "PUBLISHED",
+  UNPUBLISHED = "UNPUBLISHED",
+  ARCHIVED = "ARCHIVED",
+}
+
 export enum OrderStatus {
   PENDING_PAYMENT = "PENDING_PAYMENT",
   PAID = "PAID",
@@ -132,11 +140,22 @@ export interface Product {
   basePrice: number;
   categoryId: string;
   brandId: string | null;
+  status: ProductStatus;
   isActive: boolean;
   isFeatured: boolean;
   weight: number | null;
   dimensions: any;
   images: string[];
+  seoTitle: string | null;
+  seoDescription: string | null;
+  seoKeywords: string[];
+  ogImage: string | null;
+  canonicalUrl: string | null;
+  createdById: string | null;
+  updatedById: string | null;
+  approvedById: string | null;
+  approvedAt: Date | null;
+  publishedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -184,6 +203,19 @@ export interface ProductRelation {
   id: string;
   productId: string;
   relatedId: string;
+  createdAt: Date;
+}
+
+export interface ProductChange {
+  id: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  action: string;
+  field: string | null;
+  oldValue: any;
+  newValue: any;
+  comment: string | null;
   createdAt: Date;
 }
 
@@ -315,6 +347,7 @@ export class PrismaClient {
   compositeItem: any;
   bulkTier: any;
   productRelation: any;
+  productChange: any;
   cart: any;
   cartItem: any;
   order: any;
