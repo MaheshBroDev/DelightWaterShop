@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+@theme {
+  /* Water/Ocean Color Palette */
+  --color-abyss: #001224;
+  --color-deep: #00223d;
+  --color-water: #003b6f;
+  --color-aqua: #3fc6ff;
+  --color-foam: #bff1ff;
+  --color-surface: #f8fcff;
+  --color-white: #ffffff;
+  
+  /* Daraz-style accent (for deals/flash sale) */
+  --color-deal: #f57224;
+  --color-deal-dark: #d85a0f;
+  
+  /* Semantic colors */
+  --color-primary: #003b6f;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #3fc6ff;
+  --color-secondary-foreground: #001224;
+  --color-accent: #f57224;
+  --color-accent-foreground: #ffffff;
+  --color-muted: #f0f7ff;
+  --color-muted-foreground: #64748b;
+  --color-border: #e2e8f0;
+  --color-destructive: #ef4444;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  
+  /* Spacing & sizing */
+  --radius: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-full: 9999px;
+  
+  /* Font families */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Custom CSS variables for theming */
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #003b6f;
+  --primary-foreground: #ffffff;
+  --secondary: #3fc6ff;
+  --secondary-foreground: #001224;
+  --muted: #f0f7ff;
+  --muted-foreground: #64748b;
+  --accent: #f57224;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #3fc6ff;
+  
+  /* Water gradient */
+  --water-gradient: linear-gradient(135deg, #001224 0%, #00223d 30%, #003b6f 70%, #3fc6ff 100%);
+  --ocean-gradient: linear-gradient(135deg, #003b6f 0%, #3fc6ff 100%);
+  --deal-gradient: linear-gradient(135deg, #f57224 0%, #d85a0f 100%);
+}
+
+/* Base styles */
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Heading styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Water bubble animation */
+@keyframes bubble {
+  0% {
+    transform: translateY(100%) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Wave animation */
+@keyframes wave {
+  0%, 100% {
+    transform: translateX(0) translateZ(0) scaleY(1);
+  }
+  50% {
+    transform: translateX(-25%) translateZ(0) scaleY(0.55);
+  }
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Water ripple effect */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Caustic light pattern */
+@keyframes caustic {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1) rotate(2deg);
+  }
+}
+
+/* Utility classes */
+.water-gradient {
+  background: var(--water-gradient);
+}
+
+.ocean-gradient {
+  background: var(--ocean-gradient);
+}
+
+.deal-gradient {
+  background: var(--deal-gradient);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 18, 36, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(63, 198, 255, 0.1);
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Hide scrollbar for category rail */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Price styling */
+.price-accent {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.price-original {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+  font-size: 0.875rem;
+}
+
+/* Stock status badges */
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.stock-in {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.stock-low {
+  background-color: #fed7aa;
+  color: #9a3412;
+}
+
+.stock-out {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Trust badges */
+.trust-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--muted);
+  transition: all 0.3s ease;
+}
+
+.trust-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 59, 111, 0.1);
+}
