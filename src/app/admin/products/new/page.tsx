@@ -369,6 +369,27 @@ export default function NewProductPage() {
                 />
               </div>
 
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1.5">Tags</label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Best Seller", "New Arrival", "Free Installation", "Warranty",
+                    "Energy Efficient", "Commercial", "Domestic", "Industrial",
+                  ].map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className="px-3 py-1.5 rounded-full text-xs font-medium border border-[var(--color-border)] hover:border-[var(--color-aqua)] hover:bg-[var(--color-aqua)]/5 transition-colors"
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-[var(--color-muted-foreground)] mt-1">
+                  Click tags to add them. Helps customers find products by category.
+                </p>
+              </div>
+
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"

@@ -101,6 +101,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ],
     },
     {
+      label: "Taxonomy",
+      href: "/admin/taxonomy",
+      icon: "Tag",
+    },
+    {
       label: "Analytics",
       href: "/admin/analytics",
       icon: "BarChart",

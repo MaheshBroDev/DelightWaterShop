@@ -196,12 +196,38 @@ model Brand {
   name      String
   slug      String    @unique
   logo      String?
+  isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   products Product[]
 
   @@map("brands")
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  color     String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  products  ProductTag[]
+
+  @@map("tags")
+}
+
+model ProductTag {
+  productId String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@map("product_tags")
 }
 
 model Product {
@@ -240,6 +266,7 @@ model Product {
 
   category    Category           @relation(fields: [categoryId], references: [id])
   brand       Brand?             @relation(fields: [brandId], references: [id])
+  tags        ProductTag[]
   variants    ProductVariant[]
   options     ProductOption[]
   compositeItems CompositeItem[] @relation("CompositeParent")

@@ -1,53 +1,102 @@
+"use client";
+
+import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/product/ProductCard";
-import { SlidersHorizontal, Grid3X3, List } from "lucide-react";
+import {
+  ProductFilters,
+  ActiveFiltersBar,
+  ProductToolbar,
+  FilterState,
+} from "@/components/product/ProductFilters";
 
-// Mock data for demonstration
-const mockProducts = [
+// Mock products for demonstration
+const allProducts = [
   {
-    id: "1",
-    slug: "delight-domestic-ro-plant",
-    name: "Delight Domestic RO Water Purifier 100 GPD",
-    basePrice: 36500,
-    images: ["https://placehold.co/600x600/003b6f/ffffff?text=Delight+RO"],
-    type: "VARIABLE",
-    isFeatured: true,
-    reviews: [{ rating: 5 }, { rating: 4 }, { rating: 5 }],
-    brand: { name: "Delight" },
-    category: { name: "Domestic RO" },
+    id: "1", slug: "delight-domestic-ro-100", name: "Delight Domestic RO 100 GPD White",
+    basePrice: 36500, images: ["https://placehold.co/600x600/003b6f/ffffff?text=RO+100"],
+    type: "VARIABLE", isFeatured: true, reviews: [{ rating: 5 }, { rating: 4 }],
+    brand: { name: "Delight" }, category: { name: "Domestic RO" },
   },
   {
-    id: "2",
-    slug: "delight-domestic-ro-plant-75",
-    name: "Delight Domestic RO Water Purifier 75 GPD",
-    basePrice: 32500,
-    images: ["https://placehold.co/600x600/003b6f/ffffff?text=Delight+RO+75"],
-    type: "VARIABLE",
-    isFeatured: false,
-    reviews: [{ rating: 4 }, { rating: 5 }],
-    brand: { name: "Delight" },
-    category: { name: "Domestic RO" },
+    id: "2", slug: "delight-domestic-ro-75", name: "Delight Domestic RO 75 GPD Blue",
+    basePrice: 32500, images: ["https://placehold.co/600x600/3fc6ff/ffffff?text=RO+75"],
+    type: "VARIABLE", reviews: [{ rating: 4 }, { rating: 5 }, { rating: 5 }],
+    brand: { name: "Delight" }, category: { name: "Domestic RO" },
   },
   {
-    id: "3",
-    slug: "delight-domestic-ro-plant-150",
-    name: "Delight Domestic RO Water Purifier 150 GPD",
-    basePrice: 42500,
-    images: ["https://placehold.co/600x600/003b6f/ffffff?text=Delight+RO+150"],
-    type: "VARIABLE",
-    isFeatured: false,
-    reviews: [{ rating: 5 }],
-    brand: { name: "Delight" },
-    category: { name: "Domestic RO" },
+    id: "3", slug: "delight-commercial-500lph", name: "Delight Commercial RO 500 LPH",
+    basePrice: 85000, images: ["https://placehold.co/600x600/00223d/3fc6ff?text=Commercial"],
+    type: "VARIABLE", reviews: [{ rating: 5 }],
+    brand: { name: "Delight" }, category: { name: "Commercial RO" },
+  },
+  {
+    id: "4", slug: "pp-spun-filter", name: "PP Spun Filter 10 Inch - 5 Micron",
+    basePrice: 850, images: ["https://placehold.co/600x600/e2e8f0/003b6f?text=Filter"],
+    type: "SIMPLE", reviews: [{ rating: 4 }],
+    brand: { name: "Generic" }, category: { name: "Spare Parts" },
+  },
+  {
+    id: "5", slug: "ro-antiscalant", name: "RO Antiscalant Chemical 20kg",
+    basePrice: 12500, images: ["https://placehold.co/600x600/e2e8f0/003b6f?text=Chemical"],
+    type: "BULK", reviews: [{ rating: 5 }, { rating: 4 }],
+    brand: { name: "Generic" }, category: { name: "Chemicals" },
+  },
+  {
+    id: "6", slug: "uv-lamp-11w", name: "UV Sterilizer Lamp 11W",
+    basePrice: 4500, images: ["https://placehold.co/600x600/e2e8f0/003b6f?text=UV+Lamp"],
+    type: "SIMPLE", reviews: [{ rating: 4 }, { rating: 5 }],
+    brand: { name: "Generic" }, category: { name: "Spare Parts" },
+  },
+  {
+    id: "7", slug: "dow-membrane-8040", name: "DOW FilmTec 8040 RO Membrane",
+    basePrice: 45000, images: ["https://placehold.co/600x600/e2e8f0/003b6f?text=Membrane"],
+    type: "SIMPLE", reviews: [{ rating: 5 }],
+    brand: { name: "DOW FilmTec" }, category: { name: "Spare Parts" },
+  },
+  {
+    id: "8", slug: "water-softener-500", name: "Delight Water Softener 500 LPH",
+    basePrice: 85000, images: ["https://placehold.co/600x600/003b6f/ffffff?text=Softener"],
+    type: "VARIABLE", isFeatured: true, reviews: [{ rating: 4 }, { rating: 5 }],
+    brand: { name: "Delight" }, category: { name: "Water Filters" },
   },
 ];
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    categories: [],
+    brands: [],
+    tags: [],
+    priceMin: null,
+    priceMax: null,
+    rating: null,
+    inStockOnly: false,
+    sortBy: "newest",
+  });
+
   const categoryName = params.slug
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
+
+  // Filter products based on active filters
+  const filteredProducts = allProducts.filter((product) => {
+    // Price filter
+    if (filters.priceMin && product.basePrice < filters.priceMin) return false;
+    if (filters.priceMax && product.basePrice > filters.priceMax) return false;
+    return true;
+  });
+
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (filters.sortBy) {
+      case "price_asc": return a.basePrice - b.basePrice;
+      case "price_desc": return b.basePrice - a.basePrice;
+      default: return 0;
+    }
+  });
 
   return (
     <>
@@ -60,137 +109,101 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
           <span className="text-[var(--color-foreground)]">{categoryName}</span>
         </nav>
 
+        {/* Active filters */}
+        <ActiveFiltersBar filters={filters} onFilterChange={setFilters} />
+
+        {/* Toolbar */}
+        <ProductToolbar
+          totalResults={sortedProducts.length}
+          filters={filters}
+          onFilterChange={setFilters}
+          onToggleMobileFilters={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+        />
+
         <div className="flex gap-6">
-          {/* Sidebar Filters */}
-          <aside className="hidden lg:block w-64 shrink-0">
-            <div className="sticky top-24 p-5 rounded-xl border border-[var(--color-border)] bg-white">
-              <div className="flex items-center gap-2 mb-4">
-                <SlidersHorizontal size={18} />
-                <h3 className="font-heading font-bold">Filters</h3>
-              </div>
-
-              {/* Category Filter */}
-              <div className="mb-4">
-                <h4 className="font-medium text-sm mb-2">Category</h4>
-                <ul className="space-y-1.5 text-sm">
-                  <li>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="rounded border-[var(--color-border)]" />
-                      All Domestic RO
-                    </label>
-                  </li>
-                  <li>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="rounded border-[var(--color-border)]" />
-                      75 GPD
-                    </label>
-                  </li>
-                  <li>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="rounded border-[var(--color-border)]" />
-                      100 GPD
-                    </label>
-                  </li>
-                  <li>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="rounded border-[var(--color-border)]" />
-                      150 GPD
-                    </label>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-4">
-                <h4 className="font-medium text-sm mb-2">Price Range</h4>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    className="w-full h-9 px-3 text-sm rounded-lg border border-[var(--color-border)]"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    className="w-full h-9 px-3 text-sm rounded-lg border border-[var(--color-border)]"
-                  />
-                </div>
-              </div>
-
-              {/* Brand Filter */}
-              <div className="mb-4">
-                <h4 className="font-medium text-sm mb-2">Brand</h4>
-                <ul className="space-y-1.5 text-sm">
-                  <li>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="rounded border-[var(--color-border)]" />
-                      Delight
-                    </label>
-                  </li>
-                  <li>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="rounded border-[var(--color-border)]" />
-                      DOW FilmTec
-                    </label>
-                  </li>
-                  <li>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="rounded border-[var(--color-border)]" />
-                      Pentair
-                    </label>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Rating Filter */}
-              <div>
-                <h4 className="font-medium text-sm mb-2">Rating</h4>
-                <ul className="space-y-1.5 text-sm">
-                  {[4, 3, 2, 1].map((rating) => (
-                    <li key={rating}>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" className="rounded border-[var(--color-border)]" />
-                        {"★".repeat(rating)}{"☆".repeat(5 - rating)} & up
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          {/* Sidebar Filters - Desktop */}
+          <aside className="hidden lg:block w-72 shrink-0">
+            <div className="sticky top-24">
+              <ProductFilters
+                categories={[]}
+                brands={[]}
+                tags={[]}
+                filters={filters}
+                onFilterChange={setFilters}
+              />
             </div>
           </aside>
 
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Toolbar */}
-            <div className="flex items-center justify-between mb-4 p-3 rounded-xl border border-[var(--color-border)] bg-white">
-              <p className="text-sm text-[var(--color-muted-foreground)]">
-                <span className="font-medium text-[var(--color-foreground)]">{mockProducts.length}</span> products found
-              </p>
-              <div className="flex items-center gap-3">
-                <select className="h-9 px-3 text-sm rounded-lg border border-[var(--color-border)] bg-white">
-                  <option>Best Match</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Newest First</option>
-                  <option>Top Rated</option>
-                </select>
-                <div className="hidden sm:flex gap-1">
-                  <button className="p-2 rounded-lg bg-[var(--color-muted)]">
-                    <Grid3X3 size={16} />
+          {/* Mobile Filters Overlay */}
+          {mobileFiltersOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden">
+              <div
+                className="absolute inset-0 bg-black/50"
+                onClick={() => setMobileFiltersOpen(false)}
+              />
+              <div className="absolute bottom-0 left-0 right-0 max-h-[80vh] bg-white rounded-t-2xl overflow-y-auto">
+                <div className="sticky top-0 bg-white border-b border-[var(--color-border)] p-4 flex items-center justify-between">
+                  <h2 className="font-heading font-bold">Filters</h2>
+                  <button
+                    onClick={() => setMobileFiltersOpen(false)}
+                    className="p-2 rounded-lg hover:bg-[var(--color-muted)]"
+                  >
+                    ✕
                   </button>
-                  <button className="p-2 rounded-lg hover:bg-[var(--color-muted)]">
-                    <List size={16} />
+                </div>
+                <ProductFilters
+                  categories={[]}
+                  brands={[]}
+                  tags={[]}
+                  filters={filters}
+                  onFilterChange={setFilters}
+                />
+                <div className="sticky bottom-0 bg-white border-t border-[var(--color-border)] p-4">
+                  <button
+                    onClick={() => setMobileFiltersOpen(false)}
+                    className="w-full h-11 ocean-gradient text-white font-semibold rounded-xl"
+                  >
+                    Show {sortedProducts.length} Results
                   </button>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Product Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mockProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+          {/* Product Grid */}
+          <div className="flex-1">
+            {sortedProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {sortedProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <div className="w-24 h-24 rounded-full bg-[var(--color-muted)] flex items-center justify-center mx-auto mb-6">
+                  <span className="text-4xl">🔍</span>
+                </div>
+                <h2 className="font-heading text-xl font-bold mb-2">No products found</h2>
+                <p className="text-[var(--color-muted-foreground)] mb-4">
+                  Try adjusting your filters or price range
+                </p>
+                <button
+                  onClick={() => setFilters({
+                    categories: [],
+                    brands: [],
+                    tags: [],
+                    priceMin: null,
+                    priceMax: null,
+                    rating: null,
+                    inStockOnly: false,
+                    sortBy: "newest",
+                  })}
+                  className="px-6 py-2.5 ocean-gradient text-white font-medium rounded-full"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </main>

@@ -126,8 +126,24 @@ export interface Brand {
   name: string;
   slug: string;
   logo: string | null;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  color: string | null;
+  isActive: boolean;
+  createdAt: Date;
+}
+
+export interface ProductTag {
+  productId: string;
+  tagId: string;
+  createdAt: Date;
 }
 
 export interface Product {
@@ -341,6 +357,8 @@ export class PrismaClient {
   address: any;
   category: any;
   brand: any;
+  tag: any;
+  productTag: any;
   product: any;
   productVariant: any;
   productOption: any;
