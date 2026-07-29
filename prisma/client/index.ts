@@ -244,7 +244,14 @@ export interface Coupon {
   expiresAt: Date | null;
   usageLimit: number | null;
   usedCount: number;
+  usagePerUser: number | null;
   isActive: boolean;
+  autoApply: boolean;
+  priority: number;
+  stackable: boolean;
+  scope: string;
+  scopeIds: string[];
+  description: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

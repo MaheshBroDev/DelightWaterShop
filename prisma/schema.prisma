@@ -373,7 +373,14 @@ model Coupon {
   expiresAt   DateTime?
   usageLimit  Int?
   usedCount   Int         @default(0)
+  usagePerUser Int?
   isActive    Boolean     @default(true)
+  autoApply   Boolean     @default(false)
+  priority    Int         @default(0)
+  stackable   Boolean     @default(true)
+  scope       String      @default("CART")
+  scopeIds    String[]
+  description String?     @db.Text
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
