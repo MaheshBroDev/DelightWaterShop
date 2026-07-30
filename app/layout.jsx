@@ -1,3 +1,4 @@
+import './globals.css'
 import Link from 'next/link'
 import { Droplet, Phone } from 'lucide-react'
 
