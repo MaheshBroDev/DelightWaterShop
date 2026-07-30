@@ -5,10 +5,10 @@
 # Usage:
 #   curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/main/deploy.sh | bash
 #
-# This script (served from the "main" branch) deploys a DIFFERENT branch -
-# "production" by default. To deploy another branch, set DEPLOY_BRANCH:
+# This script deploys the repository's default "main" branch. To deploy a
+# different branch, set DEPLOY_BRANCH:
 #
-#   curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/main/deploy.sh | DEPLOY_BRANCH=main bash
+#   curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/main/deploy.sh | DEPLOY_BRANCH=<branch> bash
 #
 # Host ports can be overridden the same way:
 #   APP_PORT (default 3100), KONG_HTTP_PORT (default 8100), KONG_HTTPS_PORT (default 8543)
@@ -17,7 +17,7 @@
 set -e
 
 REPO_URL="https://github.com/MaheshBroDev/DelightWaterShop.git"
-DEPLOY_BRANCH="${DEPLOY_BRANCH:-production}"
+DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
 
 # Host ports published by docker-compose (container-internal ports are unchanged)
 export APP_PORT="${APP_PORT:-3100}"
