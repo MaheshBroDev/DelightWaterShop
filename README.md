@@ -7,18 +7,15 @@ Delight Water Shop e-commerce platform and water purification service management
 - **[Deployment Guide](DEPLOYMENT.md)** - Complete instructions for building, containerizing, and deploying the application.
 - **[Supabase Self-Hosted Stack](supabase/)** - Docker Compose setup for running self-hosted Supabase (PostgreSQL, Kong, Auth, PostgREST, Realtime, Storage, Studio).
 
-## 🛠️ Quick Start
+## 🚀 Quick Start & 1-Line Deployment
 
-1. **Self-Host Supabase:**
-   ```bash
-   cd supabase
-   cp .env.example .env
-   # Update passwords and JWT keys in .env
-   docker compose up -d
-   ```
+You can deploy the entire application and self-hosted Supabase stack with a single command:
 
-2. **Run Application with Docker Compose:**
-   ```bash
-   cp .env.example .env.production
-   docker compose up --build -d
-   ```
+```bash
+curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/arena/019fb47a-delightwatershop/deploy.sh | bash
+```
+
+Alternatively, if you already have the repository cloned:
+```bash
+bash deploy.sh
+```
