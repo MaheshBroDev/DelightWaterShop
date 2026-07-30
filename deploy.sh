@@ -3,13 +3,30 @@
 # DELIGHT WATER SHOP - 1-LINE DEPLOYMENT SCRIPT
 # ==============================================================================
 # Usage:
-#   curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/arena/019fb47a-delightwatershop/deploy.sh | bash
+#   curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/main/deploy.sh | bash
+#
+# This script (served from the "main" branch) deploys a DIFFERENT branch -
+# "production" by default. To deploy another branch, set DEPLOY_BRANCH:
+#
+#   curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/main/deploy.sh | DEPLOY_BRANCH=main bash
+#
+# Host ports can be overridden the same way:
+#   APP_PORT (default 3100), KONG_HTTP_PORT (default 8100), KONG_HTTPS_PORT (default 8543)
 # ==============================================================================
 
 set -e
 
+REPO_URL="https://github.com/MaheshBroDev/DelightWaterShop.git"
+DEPLOY_BRANCH="${DEPLOY_BRANCH:-production}"
+
+# Host ports published by docker-compose (container-internal ports are unchanged)
+export APP_PORT="${APP_PORT:-3100}"
+export KONG_HTTP_PORT="${KONG_HTTP_PORT:-8100}"
+export KONG_HTTPS_PORT="${KONG_HTTPS_PORT:-8543}"
+
 echo "💧 ======================================================================"
 echo "💧 Starting Delight Water Shop + Self-Hosted Supabase 1-Line Deployment..."
+echo "💧 Deploying branch: $DEPLOY_BRANCH"
 echo "💧 ======================================================================"
 
 # Check prerequisites
@@ -23,15 +40,27 @@ if ! docker compose version &> /dev/null; then
     exit 1
 fi
 
-# Clone or verify repository
+# Verify the deployment branch exists on the remote before touching anything
+echo "🔎 Verifying branch '$DEPLOY_BRANCH' exists on GitHub..."
+if ! git ls-remote --exit-code --heads "$REPO_URL" "$DEPLOY_BRANCH" > /dev/null 2>&1; then
+    echo "❌ Error: branch '$DEPLOY_BRANCH' does not exist on github.com/MaheshBroDev/DelightWaterShop." >&2
+    echo "   Create it first, e.g.:  git push origin main:$DEPLOY_BRANCH" >&2
+    echo "   Or deploy a different branch:" >&2
+    echo "   curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/main/deploy.sh | DEPLOY_BRANCH=<branch> bash" >&2
+    exit 1
+fi
+
+# Clone or update repository
 if [ ! -d "DelightWaterShop" ]; then
-    echo "📥 Cloning Delight Water Shop repository..."
-    git clone https://github.com/MaheshBroDev/DelightWaterShop.git DelightWaterShop
+    echo "📥 Cloning Delight Water Shop repository (branch: $DEPLOY_BRANCH)..."
+    git clone --branch "$DEPLOY_BRANCH" "$REPO_URL" DelightWaterShop
     cd DelightWaterShop
-    git checkout arena/019fb47a-delightwatershop
 else
     cd DelightWaterShop
-    git pull origin arena/019fb47a-delightwatershop || true
+    echo "🔄 Switching existing clone to '$DEPLOY_BRANCH' and updating..."
+    git fetch origin
+    git checkout "$DEPLOY_BRANCH"
+    git pull origin "$DEPLOY_BRANCH"
 fi
 
 # Setup Environment Files
@@ -52,10 +81,9 @@ docker compose up --build -d
 
 echo ""
 echo "🎉 ======================================================================"
-echo "🎉 Delight Water Shop successfully deployed!"
+echo "🎉 Delight Water Shop successfully deployed! (branch: $DEPLOY_BRANCH)"
 echo "🎉 ======================================================================"
-echo "🌐 Web Application:         http://localhost:3001"
-echo "🎛️ Supabase Studio (Admin): http://localhost:3000"
-echo "🔌 Kong API Gateway:        http://localhost:8000"
-echo "🗄️ PostgreSQL Database:     localhost:5432"
+echo "🌐 Web Application:  http://localhost:${APP_PORT}"
+echo "🔌 Kong API Gateway: http://localhost:${KONG_HTTP_PORT} (HTTPS: ${KONG_HTTPS_PORT})"
+echo "🗄️ PostgreSQL:       internal only (container 'delight-watershop-db')"
 echo "========================================================================"

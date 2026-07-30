@@ -1,0 +1,11 @@
+# Keep the build context small and prevent host artifacts from clobbering
+# the fresh `npm ci` install and `next build` output inside the image.
+.git
+node_modules
+.next
+npm-debug.log
+Dockerfile
+.dockerignore
+docker-compose.yml
+README.md
+DEPLOYMENT.md

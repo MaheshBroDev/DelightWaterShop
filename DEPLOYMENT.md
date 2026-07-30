@@ -108,7 +108,7 @@ Key environment variables required:
 ```env
 NODE_ENV=production
 PORT=3001
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:8100
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 ```
@@ -124,7 +124,7 @@ docker compose up --build -d
 This will:
 1. Build the Delight Water Shop web application container using the multi-stage `Dockerfile`.
 2. Start the PostgreSQL database and Kong API Gateway.
-3. Expose the web application on port `3001` and Supabase API on port `8000`.
+3. Expose the web application on host port `3100` and the Supabase API (Kong) on host port `8100` (container-internal ports remain `3001` and `8000`).
 
 ---
 
@@ -182,7 +182,7 @@ jobs:
 ## 🔒 Part 4: Production Best Practices & Security
 
 1. **Reverse Proxy (Nginx / Caddy / Traefik):**
-   Place an Nginx or Caddy reverse proxy in front of Kong (`8000`) and the App (`3001`) to handle SSL/TLS certificates (Let's Encrypt) and HTTP/2.
+   Place an Nginx or Caddy reverse proxy in front of Kong (`8100`) and the App (`3100`) to handle SSL/TLS certificates (Let's Encrypt) and HTTP/2.
 
 2. **Database Backups:**
    Set up automated cron jobs to backup the PostgreSQL database:
@@ -191,7 +191,7 @@ jobs:
    ```
 
 3. **Firewall Rules:**
-   Ensure ports `5432` (Postgres) and internal container ports are blocked from external public access. Only expose ports `80`, `443` (via reverse proxy), `3000` (Studio, protected by auth), `8000` (Kong API), and `3001` (App).
+   Ensure ports `5432` (Postgres) and internal container ports are blocked from external public access. Only expose ports `80`, `443` (via reverse proxy), `3000` (Studio, protected by auth), `8100` (Kong API), and `3100` (App).
 
 ---
 
@@ -199,4 +199,4 @@ jobs:
 
 - **Database Connection Issues:** Check container logs using `docker compose logs db`.
 - **Kong Gateway Errors:** Verify `supabase/volumes/kong/kong.yml` route mappings.
-- **Port Conflicts:** Modify port mappings in `docker-compose.yml` if ports `3000`, `3001`, `8000`, or `5432` are already in use on your host machine.
+- **Port Conflicts:** The app and gateway host ports can be changed without editing any files — set `APP_PORT`, `KONG_HTTP_PORT`, and `KONG_HTTPS_PORT` before running `docker compose` (defaults: `3100`, `8100`, `8543`). If the Supabase stack's own ports (`3000` Studio, `5432` Postgres) conflict, adjust `supabase/docker-compose.yml` / `supabase/.env`.
