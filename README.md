@@ -12,7 +12,7 @@ Delight Water Shop e-commerce platform and water purification service management
 You can deploy the entire application and self-hosted Supabase stack with a single command:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/arena/019fb47a-delightwatershop/deploy.sh | bash
+curl -sSL https://raw.githubusercontent.com/MaheshBroDev/DelightWaterShop/main/deploy.sh | bash
 ```
 
 Alternatively, if you already have the repository cloned:
