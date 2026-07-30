@@ -1,0 +1,164 @@
+version: '3.8'
+
+services:
+  db:
+    image: supabase/postgres:15.1.0.147
+    container_name: delight-supabase-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./volumes/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  kong:
+    image: kong:2.8.1
+    container_name: delight-supabase-kong
+    restart: unless-stopped
+    ports:
+      - "${KONG_HTTP_PORT:-8000}:8000"
+      - "${KONG_HTTPS_PORT:-8443}:8443"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+    volumes:
+      - ./volumes/kong/kong.yml:/var/lib/kong/kong.yml
+    depends_on:
+      - auth
+      - rest
+      - realtime
+      - storage
+
+  auth:
+    image: supabase/gotrue:v2.132.3
+    container_name: delight-supabase-auth
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${SUPABASE_PUBLIC_URL}/auth/v1
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXPIRY: ${JWT_EXPIRY:-3600}
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_MAILER_AUTOCONFIRM: ${MAILER_AUTOCONFIRM:-true}
+      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
+
+  rest:
+    image: postgrest/postgrest:v11.2.0
+    container_name: delight-supabase-rest
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PGRST_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_POOL: 100
+
+  realtime:
+    image: supabase/realtime:v2.25.5
+    container_name: delight-supabase-realtime
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PORT: 4000
+      DB_HOST: ${POSTGRES_HOST}
+      DB_PORT: ${POSTGRES_PORT}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      DB_SSL: "false"
+      PORT: 4000
+      JWT_SECRET: ${JWT_SECRET}
+      SECRET_KEY_BASE: "upgraded-secret-key-base-for-realtime-min-32-chars-long"
+      ERL_AFLAGS: "-proto_dist inet_tcp"
+      ENABLE_TAIL_SCALE: "false"
+      DNS_NODES: ""
+
+  storage:
+    image: supabase/storage-api:v1.11.4
+    container_name: delight-supabase-storage
+    restart: unless-stopped
+    depends_on:
+      - db
+      - rest
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-52428800}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-file}
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: ${TENANT_ID:-stub}
+      REGION: us-east-1
+      GLOBAL_S3_BUCKET: ${STORAGE_S3_BUCKET:-delight-water-storage}
+    volumes:
+      - storage-data:/var/lib/storage
+
+  imgproxy:
+    image: darthsim/imgproxy:v3.18.0
+    container_name: delight-supabase-imgproxy
+    restart: unless-stopped
+    environment:
+      IMGPROXY_BIND: ":8080"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_ENABLE_WEBP_DETECTION: "true"
+
+  meta:
+    image: supabase/postgres-meta:v0.80.0
+    container_name: delight-supabase-meta
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: ${POSTGRES_HOST}
+      PG_META_DB_PORT: ${POSTGRES_PORT}
+      PG_META_DB_NAME: ${POSTGRES_DB}
+      PG_META_DB_USER: ${POSTGRES_USER}
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+  studio:
+    image: supabase/studio:20240326-0045f47
+    container_name: delight-supabase-studio
+    restart: unless-stopped
+    ports:
+      - "${STUDIO_PORT:-3000}:3000"
+    depends_on:
+      - meta
+      - rest
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_ORGANIZATION_NAME: "Delight Water Shop"
+      DEFAULT_PROJECT_NAME: "Delight Water Shop Production"
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+
+volumes:
+  db-data:
+    driver: local
+  storage-data:
+    driver: local
