@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: delight-watershop-app
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+    depends_on:
+      - supabase-kong
+    networks:
+      - delight-net
+
+  supabase-db:
+    image: supabase/postgres:15.1.0.147
+    container_name: delight-watershop-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - delight-net
+
+  supabase-kong:
+    image: kong:2.8.1
+    container_name: delight-watershop-kong
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+    volumes:
+      - ./supabase/volumes/kong/kong.yml:/var/lib/kong/kong.yml
+    networks:
+      - delight-net
+
+networks:
+  delight-net:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local
