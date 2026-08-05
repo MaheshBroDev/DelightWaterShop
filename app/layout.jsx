@@ -1,84 +1,100 @@
 import './globals.css'
 import Link from 'next/link'
-import { Droplet, Phone } from 'lucide-react'
+import { Droplet, Phone, Mail } from 'lucide-react'
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased bg-water-50 text-slate-800 min-h-screen flex flex-col">
-        {/* Navigation Header */}
-        <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-sky-100">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2.5">
-              <div className="bg-sky-500 text-white p-2.5 rounded-2xl shadow-md">
-                <Droplet className="w-6 h-6" />
+      <body className="font-sans antialiased bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+        {/* Header - clean, no blur / heavy shadows */}
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="bg-sky-600 text-white p-2 rounded-lg">
+                <Droplet className="w-5 h-5" />
               </div>
-              <span className="text-xl font-extrabold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
-                Delight Water Shop
-              </span>
+              <div className="leading-tight">
+                <span className="text-[15px] font-bold tracking-tight text-slate-900 block">
+                  Delight Water Shop
+                </span>
+                <span className="text-[11px] text-slate-500 uppercase tracking-wide font-medium">
+                  Pure Water Solutions
+                </span>
+              </div>
             </Link>
 
-            <nav className="hidden md:flex items-center space-x-8 font-medium text-slate-600">
-              <Link href="/" className="hover:text-sky-600 transition">Home</Link>
-              <Link href="/catalog" className="hover:text-sky-600 transition">Catalog</Link>
-              <Link href="/services" className="hover:text-sky-600 transition">Services</Link>
-              <Link href="/contact" className="hover:text-sky-600 transition">Contact</Link>
+            <nav className="hidden md:flex items-center gap-7 text-[14px] font-medium text-slate-600">
+              <Link href="/" className="hover:text-sky-600">Home</Link>
+              <Link href="/catalog" className="hover:text-sky-600">Products</Link>
+              <Link href="/services" className="hover:text-sky-600">Services</Link>
+              <Link href="/contact" className="hover:text-sky-600">Contact</Link>
             </nav>
 
-            <div className="flex items-center space-x-4">
-              <div className="hidden lg:flex items-center text-sm text-slate-600 space-x-1.5 bg-sky-50 px-3 py-1.5 rounded-xl border border-sky-100">
-                <Phone className="w-4 h-4 text-sky-500" />
+            <div className="flex items-center gap-3">
+              <a href="tel:+14803452427" className="hidden lg:flex items-center gap-2 text-[13px] text-slate-600 border border-slate-200 px-3 py-2 rounded-lg hover:bg-slate-50">
+                <Phone className="w-4 h-4" />
                 <span>+1 (480) 345-2427</span>
-              </div>
-              <Link 
-                href="/catalog" 
-                className="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-sm transition"
+              </a>
+              <Link
+                href="/catalog"
+                className="bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-semibold px-4 py-2.5 rounded-lg transition"
               >
-                Shop Now
+                View Products
               </Link>
             </div>
           </div>
         </header>
 
-        {/* Main Content Area */}
-        <main className="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+        {/* Main */}
+        <main className="flex-grow max-w-7xl mx-auto px-6 py-10 w-full">
           {children}
         </main>
 
-        {/* Footer */}
-        <footer className="bg-slate-900 text-slate-400 py-12 mt-16 border-t border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div className="space-y-4 md:col-span-1">
-              <div className="flex items-center space-x-2 text-white">
-                <div className="bg-sky-500 p-2 rounded-xl text-white">
+        {/* Footer - simple, flat */}
+        <footer className="bg-white border-t border-slate-200 mt-12">
+          <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-4 gap-10">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-sky-600 p-1.5 rounded-md text-white">
                   <Droplet className="w-4 h-4" />
                 </div>
-                <span className="font-bold text-lg">Delight Water Shop</span>
+                <span className="font-semibold text-slate-900 text-[14px]">Delight Water Shop</span>
               </div>
-              <p className="text-sm text-slate-400">Providing pristine drinking water and modern purification systems since inception.</p>
+              <p className="text-[13px] leading-6 text-slate-500">
+                Professional water purification, dispenser systems and bottled water delivery for homes and businesses in Chandler, AZ.
+              </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/" className="hover:text-sky-400 transition">Home</Link></li>
-                <li><Link href="/catalog" className="hover:text-sky-400 transition">Product Catalog</Link></li>
-                <li><Link href="/services" className="hover:text-sky-400 transition">Our Services</Link></li>
-                <li><Link href="/contact" className="hover:text-sky-400 transition">Contact Us</Link></li>
+              <h4 className="text-[13px] font-semibold text-slate-900 mb-3 uppercase tracking-wide">Products</h4>
+              <ul className="space-y-2 text-[13px] text-slate-600">
+                <li><Link href="/catalog" className="hover:text-slate-900">Bottled Water (19L & 500ml)</Link></li>
+                <li><Link href="/catalog" className="hover:text-slate-900">RO Purification Systems</Link></li>
+                <li><Link href="/catalog" className="hover:text-slate-900">Dispensers & Coolers</Link></li>
+                <li><Link href="/catalog" className="hover:text-slate-900">Filters & Accessories</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">Contact Us</h4>
-              <p className="text-sm">3631 S Vista Pl, Chandler, AZ</p>
-              <p className="text-sm mt-1">Phone: +1 (480) 345-2427</p>
-              <p className="text-sm mt-1">Email: support@delightwatershop.local</p>
+              <h4 className="text-[13px] font-semibold text-slate-900 mb-3 uppercase tracking-wide">Company</h4>
+              <ul className="space-y-2 text-[13px] text-slate-600">
+                <li><Link href="/services" className="hover:text-slate-900">Services</Link></li>
+                <li><Link href="/contact" className="hover:text-slate-900">Contact Us</Link></li>
+                <li><span className="text-slate-400">3631 S Vista Pl, Chandler, AZ</span></li>
+              </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">Self-Hosted Supabase</h4>
-              <p className="text-sm">Backed by self-hosted PostgreSQL, Kong API Gateway, and Supabase Auth & Storage.</p>
+              <h4 className="text-[13px] font-semibold text-slate-900 mb-3 uppercase tracking-wide">Contact</h4>
+              <ul className="space-y-2 text-[13px] text-slate-600">
+                <li className="flex items-center gap-2"><Phone className="w-4 h-4" /> +1 (480) 345-2427</li>
+                <li className="flex items-center gap-2"><Mail className="w-4 h-4" /> support@delightwatershop.local</li>
+                <li className="text-slate-400 text-[12px] mt-3">Mon-Fri 9AM-5PM, Sat 9AM-1PM</li>
+              </ul>
             </div>
           </div>
-          <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
-            © {new Date().getFullYear()} Delight Water Shop. All rights reserved. Self-hosted with Supabase.
+          <div className="border-t border-slate-100">
+            <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-[12px] text-slate-500">
+              <span>© {new Date().getFullYear()} Delight Water Shop. All rights reserved.</span>
+              <span>Self-hosted • PostgreSQL • Supabase Stack</span>
+            </div>
           </div>
         </footer>
       </body>
